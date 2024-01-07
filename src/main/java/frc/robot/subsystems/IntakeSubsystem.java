@@ -4,44 +4,54 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
-public class ExampleSubsystem extends SubsystemBase {
+public class IntakeSubsystem extends SubsystemBase {
+  CANSparkMax IntakeMotor1 = new CANSparkMax(Constants.intakeMotor1ID, MotorType.kBrushed); //assigns the motors and stuff
+  CANSparkMax IntakeMotor2 = new CANSparkMax(Constants.intakeMotor2ID, MotorType.kBrushed);
+
+  
   /** Creates a new ExampleSubsystem. */
-  public ExampleSubsystem() {}
+  public IntakeSubsystem() {
+    //IntakeMotor2.follow(IntakeMotor1); //use follow instead (controller groups are deprecated)
+    IntakeMotor1.restoreFactoryDefaults();
+    IntakeMotor2.restoreFactoryDefaults();
 
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
+
+    IntakeMotor2.setInverted(false); //set true if needs to be inverted
+
+  }
+
   public Command exampleMethodCommand() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
+
     return runOnce(
         () -> {
           /* one-time action goes here */
         });
   }
 
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
   public boolean exampleCondition() {
-    // Query some boolean state, such as a digital sensor.
     return false;
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
   }
 
   @Override
   public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
+  }
+
+  public void runGripSpeed(double speed1, double speed2)
+  {
+    IntakeMotor1.set(speed1); //sets the leader motor to the designated speed
+    IntakeMotor2.set(speed2);
+
   }
 }
