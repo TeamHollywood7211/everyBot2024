@@ -1,78 +1,144 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.IntakeCommand;
-import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.swing.ButtonGroup;
+
+import edu.wpi.first.wpilibj2.command.*;
+
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
+
+import frc.robot.commands.*;
+import frc.robot.subsystems.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
+ * subsystems, commands, and button mappings) should be declared here.
  */
+
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
+    /* Subsystems */
+    public final Swerve s_Swerve = new Swerve();
+    
+
+    private String pPlan = null;
+    public double intakeVec = 0;
+
+    public Command autoCode = Commands.sequence(new PrintCommand("no auto selected"));
+
+    /* Controllers */
+    private final Joystick driver = new Joystick(0);
+    private final Joystick operator = new Joystick(1);
+
+    /* Drive Controls */
+    private final int translationAxis = XboxController.Axis.kLeftY.value;
+    private final int strafeAxis = XboxController.Axis.kLeftX.value;
+    private final int rotationAxis = XboxController.Axis.kRightX.value;
+
+    //op controls
+    private final int wristAxis = XboxController.Axis.kLeftY.value;
+    private final int elevatorAxis = XboxController.Axis.kRightY.value;
 
 
-  
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+    private final JoystickButton e_presButton_0 = new JoystickButton(operator, XboxController.Button.kY.value);
+    private final JoystickButton e_presButton_1 = new JoystickButton(operator, XboxController.Button.kX.value);
+    private final JoystickButton e_presButton_2 = new JoystickButton(operator, XboxController.Button.kA.value);
+    private final JoystickButton e_presButton_3 = new JoystickButton(operator, XboxController.Button.kB.value);
+
+    private final JoystickButton 
+    limelighButton = new JoystickButton(driver, XboxController.Button.kA.value);
+
+    private final POVButton w_preset_0 = new POVButton(operator, 0);
+    private final POVButton w_preset_1 = new POVButton(operator, 90);
+    private final POVButton w_preset_2 = new POVButton(operator, 180);
+    private final POVButton operator_stowButton = new POVButton(operator, 270);
 
 
-  private final IntakeCommand intakeCommand = new IntakeCommand(m_IntakeSubsystem, m_driverController);
+    /* Driver Buttons */
+    private final JoystickButton zeroGyro = new JoystickButton(driver, 1);
+    private final JoystickButton robotCentric = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
+    private final JoystickButton driver_stowButton = new JoystickButton(driver, XboxController.Button.kRightBumper.value);
+    private final JoystickButton driver_AutoBalance = new JoystickButton(driver, XboxController.Button.kB.value);
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
-    // Configure the trigger bindings
-    configureBindings();
-  }
+    private final POVButton driver_stowButton2 = new POVButton(operator, 270);
+    // private final JoystickButton xModeButton = new JoystickButton(driver, XboxController.Button.kX.value);
 
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
-   * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
-  private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
+    /* LED Initialization Code */
+    private DigitalOutput LEDzero = new DigitalOutput(8);
+    private DigitalOutput LEDone = new DigitalOutput(9);
 
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    new Trigger(m_driverController.rightTrigger(0.1))
-      .onTrue(intakeCommand);
-      new Trigger(m_driverController.leftTrigger(0.1))
-      .onTrue(intakeCommand);
-    //m_driverController.b().whileTrue(intakeCommand.outTake());
+    /* Variables */
+    boolean driveStatus = false;
 
-    //m_driverController.rightBumper().whileTrue(m_IntakeSubsystem.runGripSpeed(1));
-  }
+    
+    
+    /** The container for the robot. Contains subsystems, OI devices, and commands. */
+    public RobotContainer() {
+      s_Swerve.setDefaultCommand(
+        new TeleopSwerve(
+          s_Swerve, 
+          () -> -driver.getRawAxis(translationAxis), 
+          () -> -driver.getRawAxis(strafeAxis), 
+          () -> -driver.getRawAxis(rotationAxis), 
+          () -> robotCentric.getAsBoolean()
+        )
+      );
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
-  }
+      // Configure the button bindings
+      configureButtonBindings();
+
+
+      
+    }
+
+    /**
+     * Use this method to define your button->command mappings. Buttons can be created by
+     * instantiating a {@link GenericHID} or one of its subclasses ({@link
+     * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+     * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+     */
+
+    private void configureButtonBindings() {
+       zeroGyro.whileTrue(new InstantCommand(() -> s_Swerve.zeroGyro()));
+    }
+    
+    public void printValues(){
+        SmartDashboard.putNumber("balanceP", 0.03);
+        // SmartDashboard.getNumber("balanceI", elevatorAxis);
+        // SmartDashboard.getNumber("balanceD", elevatorAxis);
+
+
+        
+
+        //SmartDashboard.putNumber("Pid off", chooser.getPIDController().getPositionError());
+
+        // SmartDashboard.putNumber("RX", s_Limelight.getRX());
+        // SmartDashboard.putNumber("RY", s_Limelight.getRY());
+        // SmartDashboard.putNumber("RZ", s_Limelight.getRZ());
+    }
+
+    /**
+     * Use this to pass the autonomous command to the main {@link Robot} class.
+     *
+     * @return the command to run in autonomous
+     */
+
+    public Command getAutonomousCommand() {
+
+      Constants.gyroOffset = s_Swerve.gyro.getPitch();
+      //s_Swerve.zeroGyro();
+      return null;
+    }
 }
