@@ -14,9 +14,10 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
-
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 
@@ -30,16 +31,22 @@ import frc.robot.subsystems.*;
 public class RobotContainer {
     /* Subsystems */
     public final Swerve s_Swerve = new Swerve();
-    
+    public final IntakeSubsystem s_IntakeSubsystem = new IntakeSubsystem();    
 
     private String pPlan = null;
     public double intakeVec = 0;
 
     public Command autoCode = Commands.sequence(new PrintCommand("no auto selected"));
+    
+
 
     /* Controllers */
     private final Joystick driver = new Joystick(0);
-    private final Joystick operator = new Joystick(1);
+    private final CommandXboxController operator = new CommandXboxController(1);
+
+
+
+    private final IntakeCommand m_IntakeCommand = new IntakeCommand(s_IntakeSubsystem, operator);
 
     /* Drive Controls */
     private final int translationAxis = XboxController.Axis.kLeftY.value;
@@ -52,27 +59,21 @@ public class RobotContainer {
 
 
 
-    private final JoystickButton e_presButton_0 = new JoystickButton(operator, XboxController.Button.kY.value);
-    private final JoystickButton e_presButton_1 = new JoystickButton(operator, XboxController.Button.kX.value);
-    private final JoystickButton e_presButton_2 = new JoystickButton(operator, XboxController.Button.kA.value);
-    private final JoystickButton e_presButton_3 = new JoystickButton(operator, XboxController.Button.kB.value);
+
 
     private final JoystickButton 
     limelighButton = new JoystickButton(driver, XboxController.Button.kA.value);
 
-    private final POVButton w_preset_0 = new POVButton(operator, 0);
-    private final POVButton w_preset_1 = new POVButton(operator, 90);
-    private final POVButton w_preset_2 = new POVButton(operator, 180);
-    private final POVButton operator_stowButton = new POVButton(operator, 270);
+
 
 
     /* Driver Buttons */
-    private final JoystickButton zeroGyro = new JoystickButton(driver, 1);
+    private final JoystickButton zeroGyro = new JoystickButton(driver, 7);
     private final JoystickButton robotCentric = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
     private final JoystickButton driver_stowButton = new JoystickButton(driver, XboxController.Button.kRightBumper.value);
     private final JoystickButton driver_AutoBalance = new JoystickButton(driver, XboxController.Button.kB.value);
 
-    private final POVButton driver_stowButton2 = new POVButton(operator, 270);
+
     // private final JoystickButton xModeButton = new JoystickButton(driver, XboxController.Button.kX.value);
 
     /* LED Initialization Code */
@@ -98,9 +99,6 @@ public class RobotContainer {
 
       // Configure the button bindings
       configureButtonBindings();
-
-
-      
     }
 
     /**
@@ -112,10 +110,23 @@ public class RobotContainer {
 
     private void configureButtonBindings() {
        zeroGyro.whileTrue(new InstantCommand(() -> s_Swerve.zeroGyro()));
+
+            new Trigger(operator.rightTrigger(0.05))
+        .onTrue(m_IntakeCommand);
+      new Trigger(operator.leftTrigger(0.1))
+        .onTrue(m_IntakeCommand);
+
+      new Trigger(operator.rightBumper())
+        .onTrue(m_IntakeCommand);
+        
+      new Trigger(operator.rightBumper())
+      .onFalse(m_IntakeCommand);
+
+      
     }
     
     public void printValues(){
-        SmartDashboard.putNumber("balanceP", 0.03);
+        //SmartDashboard.putNumber("balanceP", 0.03);
         // SmartDashboard.getNumber("balanceI", elevatorAxis);
         // SmartDashboard.getNumber("balanceD", elevatorAxis);
 
