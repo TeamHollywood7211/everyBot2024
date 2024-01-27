@@ -116,6 +116,8 @@ public class RobotContainer {
       new Trigger(operator.leftTrigger(0.1))
         .onTrue(m_IntakeCommand);
 
+      
+
       new Trigger(operator.rightBumper())
         .onTrue(m_IntakeCommand);
         

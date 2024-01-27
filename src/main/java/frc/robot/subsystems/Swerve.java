@@ -4,6 +4,7 @@ import frc.robot.SwerveModule;
 import frc.robot.Constants;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.Kinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -54,12 +55,12 @@ public class Swerve extends SubsystemBase {
         resetModulesToAbsolute();
 
         swerveOdometry = new SwerveDriveOdometry(Constants.Swerve.swerveKinematics, getYaw(), getModulePositions());
-            
+           /*  
          AutoBuilder.configureHolonomic(
                 this::getPose, // Robot pose supplier
                 this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
-                this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                this::drive, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+                this::getRobotRelativeSpeeds, // ChassisSpeeds  supplier. MUST BE ROBOT RELATIVE
+                this::autoDrive, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
                 new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
                         new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
                         new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
@@ -79,7 +80,7 @@ public class Swerve extends SubsystemBase {
                     return false;
                 },
                 this // Reference to this subsystem to set requirements
-        );
+        );*/
         
         
     }
@@ -104,15 +105,19 @@ public class Swerve extends SubsystemBase {
             mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
         }
     }    
-
-
-
-
+    /* 
+    public void autoDrive(ChassisSpeeds speed){
+        SwerveModuleState[] swerveModuleStates =
+        Constants.Swerve.swerveKinematics.toSwerveModuleStates(speed);
+        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.Swerve.maxSpeed);
+    }
 
     public ChassisSpeeds getRobotRelativeSpeeds()
     {
-        return ChassisSpeeds.fromFieldRelativeSpeeds(getRobotRelativeSpeeds(), getYaw());
-    }
+        
+        return ChassisSpeeds.getChassisSpeeds(SwerveModuleState[] :: states);
+
+    }*/
 
     /* Used by SwerveControllerCommand in Auto */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
