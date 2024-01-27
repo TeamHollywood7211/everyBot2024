@@ -47,6 +47,7 @@ public class Swerve extends SubsystemBase {
             new SwerveModule(2, Constants.Swerve.Mod2.constants),
             new SwerveModule(3, Constants.Swerve.Mod3.constants)
         };
+        
 
         /* By pausing init for a second before setting module offsets, we avoid a bug with inverting motors.
          * See https://github.com/Team364/BaseFalconSwerve/issues/8 for more info.
@@ -55,7 +56,7 @@ public class Swerve extends SubsystemBase {
         resetModulesToAbsolute();
 
         swerveOdometry = new SwerveDriveOdometry(Constants.Swerve.swerveKinematics, getYaw(), getModulePositions());
-           /*  
+           
          AutoBuilder.configureHolonomic(
                 this::getPose, // Robot pose supplier
                 this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
@@ -80,7 +81,7 @@ public class Swerve extends SubsystemBase {
                     return false;
                 },
                 this // Reference to this subsystem to set requirements
-        );*/
+        );
         
         
     }
@@ -105,7 +106,7 @@ public class Swerve extends SubsystemBase {
             mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
         }
     }    
-    /* 
+     
     public void autoDrive(ChassisSpeeds speed){
         SwerveModuleState[] swerveModuleStates =
         Constants.Swerve.swerveKinematics.toSwerveModuleStates(speed);
@@ -115,9 +116,9 @@ public class Swerve extends SubsystemBase {
     public ChassisSpeeds getRobotRelativeSpeeds()
     {
         
-        return ChassisSpeeds.getChassisSpeeds(SwerveModuleState[] :: states);
-
-    }*/
+        //return Constants.Swerve.swerveKinematics.toChassisSpeeds(mSwerveMods);
+        return null;
+    }
 
     /* Used by SwerveControllerCommand in Auto */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
