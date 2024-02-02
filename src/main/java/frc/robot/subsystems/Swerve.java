@@ -115,9 +115,8 @@ public class Swerve extends SubsystemBase {
 
     public ChassisSpeeds getRobotRelativeSpeeds()
     {
-        
-        //return Constants.Swerve.swerveKinematics.toChassisSpeeds(mSwerveMods);
-        return null;
+        return Constants.Swerve.swerveKinematics.toChassisSpeeds();
+        //return null;
     }
 
     /* Used by SwerveControllerCommand in Auto */
@@ -132,7 +131,7 @@ public class Swerve extends SubsystemBase {
     public Pose2d getPose() {
         return swerveOdometry.getPoseMeters();
     }
-
+  
     public void resetPose(Pose2d pose) {
        swerveOdometry.resetPosition(new Rotation2d(gyro.getYaw(),gyro.getYaw()), getModulePositions(), pose);
     }
@@ -159,6 +158,7 @@ public class Swerve extends SubsystemBase {
 
     public void zeroGyro(){
         gyro.reset();
+        
     }
 
     public Rotation2d getYaw() {
@@ -184,6 +184,7 @@ public class Swerve extends SubsystemBase {
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Position", mod.getPosition().distanceMeters); 
                
         }
+        SmartDashboard.putString("Gyro", getYaw().toString());
     }
 
     public void rotateToDegree(double target){

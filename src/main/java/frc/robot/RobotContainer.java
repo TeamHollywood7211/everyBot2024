@@ -5,6 +5,10 @@ import java.util.List;
 
 import javax.swing.ButtonGroup;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import edu.wpi.first.wpilibj2.command.*;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -13,6 +17,7 @@ import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -29,6 +34,8 @@ import frc.robot.subsystems.*;
  */
 
 public class RobotContainer {
+
+   private final SendableChooser<Command> autoChooser;
     /* Subsystems */
     public final Swerve s_Swerve = new Swerve();
     public final IntakeSubsystem s_IntakeSubsystem = new IntakeSubsystem();    
@@ -49,9 +56,9 @@ public class RobotContainer {
     private final IntakeCommand m_IntakeCommand = new IntakeCommand(s_IntakeSubsystem, operator);
 
     /* Drive Controls */
-    private final int translationAxis = XboxController.Axis.kLeftY.value;
-    private final int strafeAxis = XboxController.Axis.kLeftX.value;
-    private final int rotationAxis = XboxController.Axis.kRightX.value;
+    private final int translationAxis = XboxController.Axis.kLeftY.value; //forward/back
+    private final int strafeAxis = XboxController.Axis.kLeftX.value; //left/right 
+    private final int rotationAxis = XboxController.Axis.kRightX.value; //rotation (duh it says it)
 
     //op controls
     private final int wristAxis = XboxController.Axis.kLeftY.value;
@@ -96,7 +103,14 @@ public class RobotContainer {
           () -> robotCentric.getAsBoolean()
         )
       );
+      autoChooser = AutoBuilder.buildAutoChooser();
 
+      //NamedCommands.registerCommand("firePiece", m_IntakeCommand); //Shoots a piece
+
+      SmartDashboard.putData("Auto Chooser", autoChooser);
+      
+      NamedCommands.registerCommand("shooterFire", s_IntakeSubsystem.shootOut());
+      NamedCommands.registerCommand("shooterStop", s_IntakeSubsystem.shootStop());
       // Configure the button bindings
       configureButtonBindings();
     }
@@ -150,8 +164,8 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
 
-      Constants.gyroOffset = s_Swerve.gyro.getPitch();
+      //Constants.gyroOffset = s_Swerve.gyro.getPitch();
       //s_Swerve.zeroGyro();
-      return null;
+      return autoChooser.getSelected();
     }
 }

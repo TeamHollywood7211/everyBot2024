@@ -59,4 +59,16 @@ public class IntakeSubsystem extends SubsystemBase {
     IntakeMotor2.set(speed2);
   }
 
+  public Command shootOut(){
+    double power = 1.00;
+    runGripSpeed(power, power);
+
+    return null;
+
+  }
+  public Command shootStop(){
+    runGripSpeed(0, 0);
+    return null;
+  }
+
 }
