@@ -115,7 +115,16 @@ public class Swerve extends SubsystemBase {
 
     public ChassisSpeeds getRobotRelativeSpeeds()
     {
-        return Constants.Swerve.swerveKinematics.toChassisSpeeds();
+        SwerveModuleState[] myStates = 
+                    {
+                mSwerveMods[0].getState(),
+                mSwerveMods[1].getState(),
+                mSwerveMods[2].getState(),
+                mSwerveMods[3].getState()
+            };
+
+
+        return Constants.Swerve.swerveKinematics.toChassisSpeeds(myStates);
         //return null;
     }
 
