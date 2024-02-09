@@ -12,13 +12,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-public class IntakeSubsystem extends SubsystemBase {
-  CANSparkMax IntakeMotor1 = new CANSparkMax(Constants.intakeMotor1ID, MotorType.kBrushed); //assigns the motors and stuff
-  CANSparkMax IntakeMotor2 = new CANSparkMax(Constants.intakeMotor2ID, MotorType.kBrushed);
+public class ShooterSubsystem extends SubsystemBase {
+  CANSparkMax IntakeMotor1 = new CANSparkMax(50, MotorType.kBrushless); //assigns the motors and stuff
+  CANSparkMax IntakeMotor2 = new CANSparkMax(51, MotorType.kBrushless);
+
+  CANSparkMax IntakeMotor3 = new CANSparkMax(49, MotorType.kBrushed); //assigns the motors and stuff
 
   
   /** Creates a new ExampleSubsystem. */
-  public IntakeSubsystem() {
+  public ShooterSubsystem() {
     //IntakeMotor2.follow(IntakeMotor1); //use follow instead (controller groups are deprecated)
     IntakeMotor1.restoreFactoryDefaults();
     IntakeMotor2.restoreFactoryDefaults();
@@ -52,6 +54,10 @@ public class IntakeSubsystem extends SubsystemBase {
   {
     IntakeMotor1.set(speed1); //sets the leader motor to the designated speed
     IntakeMotor2.set(speed2);
+  }
 
+  public void runRearSpeed(double speed3)
+  {
+    IntakeMotor3.set(speed3);
   }
 }
